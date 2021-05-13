@@ -1,0 +1,162 @@
+---
+title: "San Fransisco Crime "
+author: "Yordy Castillo"
+date: "Nov 26, 2019"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 5
+---
+# Introduction to project
+
+I will be doing my project on San Fransisco's 2018-2019 Crime dataset, san fransisco is the cultural, commercial, and financial center of Northern California. San Francisco is the 13th-most populous city in the United States, and the fourth-most populous in California, with 883,305 residents as of 2018. It covers an area of about 46.89 square miles (121.4 km2) , the website where I got the dataset is shown below and my reasoning is also down below.
+
+```{r , echo=FALSE, fig.cap="Boxplot Diagram", out.width = '95%',fig.align = 'center'}
+knitr::include_graphics("C:/Users/Yordy/Desktop/RBD/data/san_fran.jpg")
+```
+## Link to your data
+
+This is where I got my dataset
+The R project webpage:  <https://www.kaggle.com/roshansharma/sanfranciso-crime-dataset/> 
+
+## Questions/ Reasons 
+
+some questions that i want to address are:
+
+1. to compare the crime rates in the diffrent districts in san fransisco
+2. to compare the time of week where crime is most prevalent 
+3. what time of day crime occurs  
+
+
+my motivation to do my project on san fransisco crime is since i am a graduating computer science major and most of the high paying companies is in san fransisco area , I wanted to compare the diffrent crime rates and what crimes occurs the most in the diffrent neighborhoods   
+
+# Packages
+
+List and Load all packages that will be used in your project and include one line comment explaining the nature of the list.
+For example: (dplyr: to wrangle and manipulate data)
+
+```{r}
+library(ggplot2) #<-ggplot2 is a system for declaratively creating graphics, based on The Grammar of Graphics
+library(dplyr) #<-dplyr provides a flexible grammar of data manipulation.focused on tools for working with data frames
+
+```
+# Variable names
+
+1. propxx <-makes a table compareing the crime in each police department
+2. code1-5< the diffrent Incident Categories 
+3. propor<- just like propxx execpt with analysis of percentage of crime in each neighborhood 
+4. highscrime<- places with highest crime
+5. fltr<- filters out the highest crime
+6. lowestcrime<- neiborhood with the lowerst crime
+7. ftr<- filters out the lowest crime
+8. V<-table for the time of day crime is done.
+9. WeekCrimes<- what time in the week crime is done
+10. Crimes_Place<- frequency on crime in each police district
+11. BBB<-graphing the frequency of total crime in each police district
+12. aaa<- graphing total crimes vs the day of the week
+
+
+# Reading the data
+
+```{r}
+compare<-read.csv("C:/Users/Yordy/Desktop/RBD/data/sfpolice.csv",stringsAsFactors = F,header = T)
+summary(compare)
+
+library(ggplot2)
+library(dplyr)
+object.size(compare)
+unique(compare$Incident.Category)
+
+propxx<-prop.table(table(compare$Police.District))*100
+propxx
+
+code1<-sum(compare$Incident.Category=="Burglary")
+code2<-sum(compare$Incident.Category=="Homicide")
+code3<-sum(compare$Incident.Category=="Assault")
+code4<-sum(compare$Incident.Category=="Sex Offense")
+code5<-sum(compare$Incident.Category=="Motor Vehicle Theft")
+codes<-c(code1,code2,code3,code4,code5)
+lable<-c("Burglary","Homicide","Assault","Sex Offense","Motor Vehicle Theft")
+pie(codes,lable,main = "Pie chart for the top crimes in the city of san fransisco",col = rainbow(length(codes)))
+
+unique(compare$Analysis.Neighborhood)
+
+propor<-prop.table(table(compare$Analysis.Neighborhood))*100
+propor
+
+highcrime<-c("Financial District/South Beach"," Mission","South of Market","Tenderloin","Bayview Hunters Point")
+fltr<-filter(compare, compare$Analysis.Neighborhood %in% highcrime)
+lowestcrime<-c("Treasure Island"," Seacliff","McLaren Park","Lincoln Park","Twin Peaks")
+ftr<-filter(compare, Analysis.Neighborhood %in% lowestcrime)
+tbl1<-table(fltr$Analysis.Neighborhood)
+tbl1
+
+tbl2<-table(ftr$Analysis.Neighborhood)
+tbl2
+
+barplot(tbl1, col=colors()[2:10],main = "Neighborhoods with the highest Crimes",xlab="Neighborhoods",ylab="Frequency")
+
+barplot(tbl2, col=colors()[11:57],main = "Neighborhoods with the lowest Crimes",xlab="Neighborhoods",ylab="Frequency")
+
+V<-table(compare$Incident.Time)
+barplot(V, main="Crime distribution during different times in a day")
+
+WeekCrimes = as.data.frame(table(compare$Incident.Day.of.Week))
+WeekCrimes
+
+ggplot(data=compare, aes(compare$Supervisor.District)) + 
+  geom_histogram(breaks=seq(0, 11, by =1), 
+                 col="red", 
+                 aes(fill=..count..))+
+  scale_fill_gradient("Count", low = "blue", high = "red")+labs(title="Histogram for the Supervisor District") +
+  labs(x="District", y="Count")
+
+Crimes_Place =as.data.frame(table(compare$Police.District))
+head(Crimes_Place)
+
+BBB<-ggplot(Crimes_Place, aes(x=Var1, y=Freq)) + geom_line(aes(group=1))+ xlab("Police District") + ylab("Total Crimes")+labs(title="Total Crime Vs Police Districts") 
+
+BBB +  theme(plot.background = element_rect(fill=colors()[103], color=colors()[74],size=3),panel.background = element_rect(fill=colors()[3]), panel.grid.minor = element_line(colour="blue", linetype="3313", size=0.5),
+plot.title=element_text(face="bold.italic",size="25", color="blue"),
+axis.title=element_text(face="bold.italic",size=15, color="purple"),
+axis.text=element_text(face="bold", size=10,color="blue", angle = 15))
+
+aaa<-ggplot(WeekCrimes, aes(x=Var1, y=Freq)) + geom_line(aes(group=1))+ xlab("Day of the Week") + ylab("Total Crimes")+labs(title="Number of Crimes Vs Week Days") 
+aaa +  theme(plot.background = element_rect(fill=colors()[393], color=colors()[65],size=3),panel.background = element_rect(fill=colors()[144]), panel.grid.minor = element_line(colour="blue", linetype="3313", size=0.5),
+plot.title=element_text(face="bold.italic",size="25", color="navy"),
+axis.title=element_text(face="bold.italic",size=15, color="Red"),
+axis.text=element_text(face="bold", size=10,color="darkblue", angle = 15))
+
+```
+# Data Explorations
+
+Show the size of the data
+```{r}
+
+str(compare)
+summary(compare)
+```
+
+**numbers of rows and columns:**
+
+285746 rows and 35 columns
+
+**classes of columns, how many `NA`?**
+
+most of the columns have variables up until the $Supervisor.District the columns afterwards start to have missing variables 
+
+
+# Conclusions
+Highlight the information obtained from your project aboout the data.
+Include some questions that you wish to investigate further.
+
+**some highlights:**
+1. Assault is the most common crime done in san fransisco
+
+2. Tenderlion has the highest crime rate, while McLaren park has the lowest
+
+3. The time of day that crime is most frequent is around 12ish in the afternoon and the least frequent is around 5am ,and friday is the when the most amounts of crime are done
+
+**statment:**
+
+my r contributions is about 90%, i did google some ways to create diffrent graphs.
