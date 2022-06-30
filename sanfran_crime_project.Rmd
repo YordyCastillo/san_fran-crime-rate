@@ -3,7 +3,7 @@ title: "San Fransisco Crime "
 author: "Yordy Castillo"
 date: "Nov 26, 2019"
 output: 
-  html_document:
+  rmarkdown::github_document:
     toc: true
     toc_depth: 5
 ---
